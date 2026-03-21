@@ -1,0 +1,66 @@
+sudo mysql
+-- Создаем базу данных
+CREATE DATABASE IF NOT EXISTS personal_site CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Создаем пользователя (если нужно)
+CREATE USER IF NOT EXISTS 'site_user'@'localhost' IDENTIFIED BY 'site_password';
+
+-- Даем права пользователю
+GRANT ALL PRIVILEGES ON personal_site.* TO 'site_user'@'localhost';
+
+-- Применяем изменения
+FLUSH PRIVILEGES;
+
+-- Проверяем создание базы
+SHOW DATABASES;
+
+-- Используем базу
+USE personal_site;
+
+-- Таблица для хранения сообщений гостевой книги (согласно заданию)
+CREATE TABLE IF NOT EXISTS guestbook (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    date_added DATE NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    middle_name VARCHAR(100),
+    email VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_date (date_added DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Таблица для хранения результатов тестов
+CREATE TABLE IF NOT EXISTS test_results (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fio VARCHAR(255) NOT NULL,
+    group_name VARCHAR(50) NOT NULL,
+    q1_result VARCHAR(20) NOT NULL,
+    q2_result VARCHAR(20) NOT NULL,
+    q3_result VARCHAR(20) NOT NULL,
+    total_correct INT NOT NULL,
+    test_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_date (test_date DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Таблица для записей блога
+CREATE TABLE IF NOT EXISTS blog_posts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    image_path VARCHAR(500),
+    author VARCHAR(255) DEFAULT 'Admin',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_date (created_at DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Проверяем созданные таблицы
+SHOW TABLES;
+
+-- Просмотр структуры таблиц
+DESCRIBE guestbook;
+DESCRIBE test_results;
+DESCRIBE blog_posts;
+
+EXIT;

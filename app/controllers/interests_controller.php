@@ -8,4 +8,4 @@ class InterestsController extends Controller {
             'items'      => $items
         ]);
     }
-}
+}  
