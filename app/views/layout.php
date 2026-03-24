@@ -23,14 +23,14 @@
                 <a href="/interests">Мои интересы</a>
                 <a href="/study">Учеба</a>
                 <a href="/test">Тест</a>
+                <a href="/test/results">Результаты тестов</a>
                 <a href="/album">Фотоальбом</a>
                 <a href="/contacts">Контакты</a>
                 <a href="/history">История</a>
                 <a href="/guestbook">Гостевая книга</a>
+                <a href="/guestbook/upload">Загрузка сообщений гостевой книги</a>
                 <a href="/blog">Мой блог</a>
-                <a href="/test/results">Результаты тестов</a>
-                <a href="/blog/upload">Загрузить CSV</a>
-                <a href="/guestbook/upload">Загрузить сообщения</a>
+                <a href="/blog/upload">Загрузка сообщений блога</a>
                 <a href="/blog/editor">Редактор блога</a>
             </nav>
         <!-- Выпадающее меню "Мои интересы" будет добавлено в само представление interests.php, т.к. оно специфично для этой страницы -->

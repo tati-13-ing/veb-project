@@ -19,7 +19,7 @@
     
     <p>Формат файла .inc: каждая строка содержит данные в формате:</p>
     <pre>Дата;ФИО;E-mail;Текст сообщения</pre>
-    <p>Пример: 15.12.2024;Иванов Иван Иванович;ivan@example.com;Привет всем!</p>
+    <p>Пример: 15.12.2026;Иванов Иван Иванович;ivan@example.com;Привет всем!</p>
     
     <form method="post" action="/guestbook/processUpload" enctype="multipart/form-data" class="contact-form">
         <div class="row">

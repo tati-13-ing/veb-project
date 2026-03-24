@@ -2,29 +2,12 @@
 
 class BaseActiveRecord
 {
-    /**
-     * @var PDO Экземпляр PDO для подключения к БД
-     */
     protected static $pdo = null;
-    
-    /**
-     * @var string Имя таблицы в БД (должно быть переопределено в дочернем классе)
-     */
     protected static $tablename = '';
-    
-    /**
-     * @var array Поля таблицы с их типами
-     */
     protected static $dbfields = [];
-    
-    /**
-     * @var int ID записи (первичный ключ)
-     */
     public $id;
-    
-    /**
-     * Конструктор - инициализирует подключение к БД и получает структуру таблицы
-     */
+    //  Конструктор - инициализирует подключение к БД и получает структуру таблицы
+
     public function __construct()
     {
         if (!static::$tablename) {
@@ -35,9 +18,8 @@ class BaseActiveRecord
         static::getFields();
     }
     
-    /**
-     * Устанавливает подключение к базе данных (если еще не установлено)
-     */
+    // Устанавливает подключение к базе данных 
+
     protected static function setupConnection()
     {
         if (!isset(static::$pdo)) {
@@ -57,9 +39,9 @@ class BaseActiveRecord
         }
     }
     
-    /**
-     * Получает структуру таблицы (поля и их типы)
-     */
+
+//  Получает структуру таблицы (поля и их типы)
+
     protected static function getFields()
     {
         if (empty(static::$dbfields)) {
@@ -74,11 +56,9 @@ class BaseActiveRecord
         }
     }
     
-    /**
-     * Сохраняет текущую запись в базу данных
-     * 
-     * @return BaseActiveRecord Возвращает текущий объект для цепочки вызовов
-     */
+
+//  Сохраняет текущую запись в базу данных
+
     public function save()
     {
         if (!static::$tablename) {
@@ -91,7 +71,7 @@ class BaseActiveRecord
         
         foreach (static::$dbfields as $field => $type) {
             if ($field === 'id') {
-                continue; // Пропускаем автоинкрементное поле
+                continue; 
             }
             
             if (property_exists($this, $field)) {
@@ -106,14 +86,14 @@ class BaseActiveRecord
         }
         
         if (empty($this->id)) {
-            // INSERT - новая запись
+         
             $sql = "INSERT INTO " . static::$tablename . " (" . implode(', ', $fields) . ") 
                     VALUES (" . implode(', ', $values) . ")";
             $stmt = static::$pdo->prepare($sql);
             $stmt->execute($params);
             $this->id = static::$pdo->lastInsertId();
         } else {
-            // UPDATE - существующая запись
+            
             $setParts = [];
             foreach ($fields as $field) {
                 $setParts[] = "$field = :$field";
@@ -129,11 +109,8 @@ class BaseActiveRecord
         return $this;
     }
     
-    /**
-     * Удаляет текущую запись из базы данных
-     * 
-     * @return bool true в случае успеха, false при ошибке
-     */
+
+// Удаляет текущую запись из базы данных
     public function delete()
     {
         if (empty($this->id) || !static::$tablename) {
@@ -150,12 +127,9 @@ class BaseActiveRecord
         }
     }
     
-    /**
-     * Находит запись по ID
-     * 
-     * @param int $id ID записи
-     * @return BaseActiveRecord|null Объект записи или null, если не найдена
-     */
+
+// Находит запись по ID
+
     public static function find($id)
     {
         if (!static::$tablename) {
@@ -186,13 +160,9 @@ class BaseActiveRecord
         }
     }
     
-    /**
-     * Находит все записи в таблице
-     * 
-     * @param string $orderBy Поле для сортировки (опционально)
-     * @param string $direction Направление сортировки (ASC/DESC)
-     * @return array Массив объектов
-     */
+
+    //  Находит все записи в таблице
+
     public static function findAll($orderBy = null, $direction = 'ASC')
     {
         if (!static::$tablename) {
@@ -224,15 +194,9 @@ class BaseActiveRecord
         return $results;
     }
     
-    /**
-     * Находит записи с пагинацией
-     * 
-     * @param int $offset Смещение
-     * @param int $limit Количество записей
-     * @param string $orderBy Поле для сортировки
-     * @param string $direction Направление сортировки
-     * @return array Массив объектов
-     */
+
+// Находит записи с пагинацией
+
     public static function findPaginated($offset, $limit, $orderBy = 'id', $direction = 'DESC')
     {
         if (!static::$tablename) {
@@ -265,12 +229,9 @@ class BaseActiveRecord
         
         return $results;
     }
-    
-    /**
-     * Получает общее количество записей в таблице
-     * 
-     * @return int Количество записей
-     */
+
+//  Получает общее количество записей в таблице
+
     public static function count()
     {
         if (!static::$tablename) {
@@ -286,11 +247,9 @@ class BaseActiveRecord
         return (int)$row['total'];
     }
     
-    /**
-     * Удаляет все записи из таблицы
-     * 
-     * @return bool
-     */
+
+//  Удаляет все записи из таблицы
+
     public static function truncate()
     {
         if (!static::$tablename) {
