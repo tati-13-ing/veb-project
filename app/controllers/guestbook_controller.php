@@ -2,9 +2,9 @@
 
 class GuestbookController extends Controller
 {
-   public function index()
+public function index()
 {
-    
+    // Сортируем сначала по created_at, затем по id (новые сверху)
     $messages = GuestbookModel::findAll('created_at', 'DESC');
     
     $this->view->render('pages/guestbook.php', 'Гостевая книга', [
