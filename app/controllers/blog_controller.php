@@ -6,12 +6,11 @@ class BlogController extends Controller
     public function index()
     {
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        
-        // Количество записей на странице (по вашему варианту)
         $perPage = 5;
         
         $offset = ($page - 1) * $perPage;
-        $posts = BlogPostModel::findPaginated($offset, $perPage, 'created_at', 'DESC');
+        // Сортируем по id в порядке убывания (новые записи имеют больший id)
+        $posts = BlogPostModel::findPaginated($offset, $perPage, 'id', 'DESC');
         $total = BlogPostModel::count();
         $totalPages = ceil($total / $perPage);
         
@@ -20,18 +19,19 @@ class BlogController extends Controller
             'currentPage' => $page,
             'totalPages' => $totalPages,
             'totalPosts' => $total,
-            'isAdmin' => false  // флаг для отличия режимов
+            'isAdmin' => false
         ]);
     }
-    
+
     // Страница "Редактор блога" - для администратора
     public function editor()
     {
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $perPage = 10; // в админке больше записей на странице
+        $perPage = 10;
         
         $offset = ($page - 1) * $perPage;
-        $posts = BlogPostModel::findPaginated($offset, $perPage, 'created_at', 'DESC');
+        // Сортируем по id в порядке убывания (новые записи имеют больший id)
+        $posts = BlogPostModel::findPaginated($offset, $perPage, 'id', 'DESC');
         $total = BlogPostModel::count();
         $totalPages = ceil($total / $perPage);
         
@@ -40,7 +40,7 @@ class BlogController extends Controller
             'currentPage' => $page,
             'totalPages' => $totalPages,
             'totalPosts' => $total,
-            'isAdmin' => true  // флаг для отличия режимов
+            'isAdmin' => true
         ]);
     }
     
@@ -232,11 +232,10 @@ public function upload()
     ]);
 }
 
-// Обработка загрузки CSV файла
 public function processUpload()
 {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        header('Location: /blog/upload');
+        header('Location: /blog/editor');
         exit;
     }
     
@@ -254,7 +253,6 @@ public function processUpload()
             $errors[] = 'Допустим только формат .csv';
         } else {
             $content = file_get_contents($filePath);
-            // Поддержка разных разделителей: запятая или точка с запятой
             $lines = explode("\n", $content);
             $firstLine = true;
             
@@ -271,7 +269,6 @@ public function processUpload()
                 }
                 $firstLine = false;
                 
-                // Определяем разделитель
                 $delimiter = (strpos($line, ';') !== false) ? ';' : ',';
                 $parts = str_getcsv($line, $delimiter);
                 
@@ -279,19 +276,12 @@ public function processUpload()
                     $title = trim($parts[0]);
                     $message = trim($parts[1]);
                     $author = isset($parts[2]) ? trim($parts[2]) : 'Администратор';
-                    $created_at = isset($parts[3]) ? trim($parts[3]) : null;
                     
                     try {
                         $post = new BlogPostModel();
                         $post->title = $title;
                         $post->message = $message;
                         $post->author = $author;
-                        
-                        if ($created_at) {
-                            // Сохраняем created_at если указан
-                            // Для этого нужно добавить поле в свойства модели
-                        }
-                        
                         $post->save();
                         $success++;
                     } catch (Exception $e) {
@@ -304,9 +294,15 @@ public function processUpload()
         }
     }
     
-    $this->view->render('pages/blog_upload.php', 'Загрузка записей блога', [
-        'errors' => $errors,
-        'success' => $success
-    ]);
+    // Сохраняем сообщения в сессию
+    if ($success > 0) {
+        $_SESSION['upload_success'] = $success;
+    }
+    if (!empty($errors)) {
+        $_SESSION['upload_errors'] = $errors;
+    }
+    
+    header('Location: /blog/editor');
+    exit;
 }
 }

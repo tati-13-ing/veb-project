@@ -2,15 +2,15 @@
 
 class GuestbookController extends Controller
 {
-    public function index()
-    {
-        // Получаем все сообщения, отсортированные по дате добавления (новые сверху)
-        $messages = GuestbookModel::findAll('created_at', 'DESC');
-        
-        $this->view->render('pages/guestbook.php', 'Гостевая книга', [
-            'messages' => $messages
-        ]);
-    }
+   public function index()
+{
+    
+    $messages = GuestbookModel::findAll('created_at', 'DESC');
+    
+    $this->view->render('pages/guestbook.php', 'Гостевая книга', [
+        'messages' => $messages
+    ]);
+}
     
     public function save()
     {

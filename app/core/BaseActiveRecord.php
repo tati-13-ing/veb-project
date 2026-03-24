@@ -160,7 +160,10 @@ class BaseActiveRecord
     }
     
   
-    public static function findAll($orderBy = null, $direction = 'ASC')
+
+//   Находит все записи в таблице
+
+    public static function findAll($orderBy = null, $direction = 'DESC')
     {
         if (!static::$tablename) {
             return [];
@@ -170,8 +173,13 @@ class BaseActiveRecord
         
         $sql = "SELECT * FROM " . static::$tablename;
         if ($orderBy) {
-            $direction = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
+          
+            $direction = strtoupper($direction);
+            $direction = ($direction === 'ASC') ? 'ASC' : 'DESC';
             $sql .= " ORDER BY $orderBy $direction";
+        } else {
+            // Если поле не указано, сортируем по id в порядке убывания
+            $sql .= " ORDER BY id DESC";
         }
         
         $stmt = static::$pdo->query($sql);
@@ -192,6 +200,7 @@ class BaseActiveRecord
     }
     
 
+
     public static function findPaginated($offset, $limit, $orderBy = 'id', $direction = 'DESC')
     {
         if (!static::$tablename) {
@@ -200,7 +209,10 @@ class BaseActiveRecord
         
         static::setupConnection();
         
-        $direction = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
+    
+        $direction = strtoupper($direction);
+        $direction = ($direction === 'ASC') ? 'ASC' : 'DESC';
+        
         $sql = "SELECT * FROM " . static::$tablename . " 
                 ORDER BY $orderBy $direction 
                 LIMIT :offset, :limit";
