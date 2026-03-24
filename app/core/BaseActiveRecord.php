@@ -6,7 +6,9 @@ class BaseActiveRecord
     protected static $tablename = '';
     protected static $dbfields = [];
     public $id;
-    //  Конструктор - инициализирует подключение к БД и получает структуру таблицы
+    
+    
+    // Конструктор - инициализирует подключение к БД и получает структуру таблицы
 
     public function __construct()
     {
@@ -18,7 +20,8 @@ class BaseActiveRecord
         static::getFields();
     }
     
-    // Устанавливает подключение к базе данных 
+
+    //  Устанавливает подключение к базе данных (если еще не установлено)
 
     protected static function setupConnection()
     {
@@ -40,7 +43,7 @@ class BaseActiveRecord
     }
     
 
-//  Получает структуру таблицы (поля и их типы)
+    //  Получает структуру таблицы (поля и их типы)
 
     protected static function getFields()
     {
@@ -56,9 +59,8 @@ class BaseActiveRecord
         }
     }
     
-
-//  Сохраняет текущую запись в базу данных
-
+    
+    // Сохраняет текущую запись в базу данны
     public function save()
     {
         if (!static::$tablename) {
@@ -71,7 +73,7 @@ class BaseActiveRecord
         
         foreach (static::$dbfields as $field => $type) {
             if ($field === 'id') {
-                continue; 
+                continue; // Пропускаем автоинкрементное поле
             }
             
             if (property_exists($this, $field)) {
@@ -86,14 +88,14 @@ class BaseActiveRecord
         }
         
         if (empty($this->id)) {
-         
+           
             $sql = "INSERT INTO " . static::$tablename . " (" . implode(', ', $fields) . ") 
                     VALUES (" . implode(', ', $values) . ")";
             $stmt = static::$pdo->prepare($sql);
             $stmt->execute($params);
             $this->id = static::$pdo->lastInsertId();
         } else {
-            
+      
             $setParts = [];
             foreach ($fields as $field) {
                 $setParts[] = "$field = :$field";
@@ -109,8 +111,7 @@ class BaseActiveRecord
         return $this;
     }
     
-
-// Удаляет текущую запись из базы данных
+  
     public function delete()
     {
         if (empty($this->id) || !static::$tablename) {
@@ -127,9 +128,7 @@ class BaseActiveRecord
         }
     }
     
-
-// Находит запись по ID
-
+   
     public static function find($id)
     {
         if (!static::$tablename) {
@@ -160,9 +159,7 @@ class BaseActiveRecord
         }
     }
     
-
-    //  Находит все записи в таблице
-
+  
     public static function findAll($orderBy = null, $direction = 'ASC')
     {
         if (!static::$tablename) {
@@ -194,8 +191,6 @@ class BaseActiveRecord
         return $results;
     }
     
-
-// Находит записи с пагинацией
 
     public static function findPaginated($offset, $limit, $orderBy = 'id', $direction = 'DESC')
     {
@@ -229,9 +224,8 @@ class BaseActiveRecord
         
         return $results;
     }
-
-//  Получает общее количество записей в таблице
-
+    
+ 
     public static function count()
     {
         if (!static::$tablename) {
@@ -247,8 +241,6 @@ class BaseActiveRecord
         return (int)$row['total'];
     }
     
-
-//  Удаляет все записи из таблицы
 
     public static function truncate()
     {
