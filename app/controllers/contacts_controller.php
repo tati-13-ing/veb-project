@@ -1,6 +1,7 @@
 <?php
 class ContactsController extends Controller {
     public function index() {
+        $this->logPageVisit();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->handleContactsForm();
         } else {

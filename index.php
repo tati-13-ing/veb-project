@@ -1,4 +1,5 @@
 <?php
+session_start();
 // Автозагрузка классов
 spl_autoload_register(function ($class) {
     $paths = [

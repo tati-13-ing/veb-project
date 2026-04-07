@@ -11,7 +11,7 @@
         </div>
     <?php endif; ?>
     
-    <?php if (isset($success) && $success > 0): ?>
+    <?php if (isset($success) && $success > 0): ?> 
         <div class="form-success">
             Успешно загружено сообщений: <?= $success ?>
         </div>
@@ -21,7 +21,7 @@
     <pre>Дата;ФИО;E-mail;Текст сообщения</pre>
     <p>Пример: 15.12.2026;Иванов Иван Иванович;ivan@example.com;Привет всем!</p>
     
-    <form method="post" action="/guestbook/processUpload" enctype="multipart/form-data" class="contact-form">
+    <form method="post" action="/admin/guestbook/processUpload" enctype="multipart/form-data" class="contact-form">
         <div class="row">
             <label for="messages_file">Файл сообщений (.inc)</label>
             <input type="file" id="messages_file" name="messages_file" accept=".inc" required>

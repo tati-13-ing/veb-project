@@ -273,11 +273,6 @@ kbd {
   resize: vertical;
 }
 
-.contact-form .buttons {
-  display: flex;
-  gap: 10px;
-  grid-template-columns: 1fr;
-}
 
 .contact-form button {
   padding: 10px 14px;
@@ -344,6 +339,34 @@ kbd {
 
 .contact-form button {
   min-height: 44px;
+}
+.contact-form .row.buttons {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  align-items: stretch;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.contact-form .row.buttons button[type="submit"] {
+  width: 100%;
+  min-height: 44px;
+}
+
+.contact-form .row.buttons .button-link,
+.contact-form .row.buttons .button-link:visited {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  background: var(--gray-700);
+  color: var(--text);
+  text-decoration: none;
+  border: 1px solid var(--gray-700);
+  border-radius: 10px;
+  text-align: center;
+  line-height: 1.2;
 }
 
 /* Сообщения об ошибках формы */

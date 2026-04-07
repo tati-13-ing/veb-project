@@ -1,6 +1,7 @@
 <?php
 class TestController extends Controller {
     public function index() {
+        $this->logPageVisit();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->handleTestForm();
         } else {
@@ -21,10 +22,14 @@ class TestController extends Controller {
             $this->view->render('pages/test-odm.php', 'Тест', ['errors' => $errors]);
         } else {
             $results = $validator->getResults();
-            
-            // Сохраняем результаты теста в базу данных
             $this->saveTestResult($_POST, $results);
-            
+
+            if (!isset($_SESSION['user_id'])) {
+                $_SESSION['auth_error'] = 'Для просмотра результатов необходимо авторизоваться';
+                header('Location: /authorization');
+                exit;
+            }
+
             $this->view->render('pages/test-odm.php', 'Результат теста', ['results' => $results]);
         }
     }
@@ -57,6 +62,11 @@ class TestController extends Controller {
      */
     public function results()
     {
+        $this->logPageVisit();
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /authorization');
+            exit;
+        }
         // Получаем все результаты с пагинацией
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $perPage = 10;

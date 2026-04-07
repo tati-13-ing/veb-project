@@ -1,7 +1,7 @@
 <div class="card">
     <div class="editor-header">
         <h2> Редактирование записи</h2>
-        <a href="/blog/editor" class="btn-refresh">← Назад к списку</a>
+        <a href="/admin/blog/editor" class="btn-refresh">← Назад к списку</a>
     </div>
     
     <?php if (!empty($errors)): ?>
@@ -14,7 +14,7 @@
         </div>
     <?php endif; ?>
     
-    <form method="post" action="/blog/update" enctype="multipart/form-data" class="contact-form">
+    <form method="post" action="/admin/blog/update" enctype="multipart/form-data" class="contact-form">
         <input type="hidden" name="id" value="<?= $post->id ?>">
         
         <div class="row">

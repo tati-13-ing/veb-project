@@ -1,6 +1,7 @@
 <?php
 class InterestsController extends Controller {
     public function index() {
+        $this->logPageVisit();
         $categories = Interest::CATEGORIES;
         $items = Interest::ITEMS;
         $this->view->render('pages/interests.php', 'Мои интересы', [

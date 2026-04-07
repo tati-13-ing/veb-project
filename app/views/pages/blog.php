@@ -2,7 +2,7 @@
     <div class="blog-header">
         <h2>Мой блог</h2>
         <?php if (isset($_SESSION['isAdmin']) && $_SESSION['isAdmin']): ?>
-            <a href="/blog/editor" class="btn-editor">✏️ Редактор блога</a>
+            <a href="/admin/blog/editor" class="btn-editor">✏️ Редактор блога</a>
         <?php endif; ?>
     </div>
     

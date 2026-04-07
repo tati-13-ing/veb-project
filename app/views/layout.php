@@ -17,28 +17,44 @@
     <header>
         <div class="wrapper">
             <h1>Персональный сайт Татьяны</h1>
-            <nav class="nav">
+             <nav class="nav">
                 <a href="/">Главная</a>
                 <a href="/about">Обо мне</a>
                 <a href="/interests">Мои интересы</a>
                 <a href="/study">Учеба</a>
                 <a href="/test">Тест</a>
-                <a href="/test/results">Результаты тестов</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="/test/results">Результаты тестов</a>
+                <?php endif; ?>
                 <a href="/album">Фотоальбом</a>
                 <a href="/contacts">Контакты</a>
                 <a href="/history">История</a>
                 <a href="/guestbook">Гостевая книга</a>
-                <a href="/guestbook/upload">Загрузка сообщений гостевой книги</a>
                 <a href="/blog">Мой блог</a>
-                <a href="/blog/upload">Загрузка сообщений блога</a>
-                <a href="/blog/editor">Редактор блога</a>
+
+                <?php if (isset($_SESSION['isAdmin']) && $_SESSION['isAdmin']): ?>
+                    <a href="/admin/blog/editor">Админка</a>
+                    <a href="/admin/auth/logout">Выйти из админки</a>
+                <?php else: ?>
+                    <a href="/admin/auth">Вход администратора</a>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <span style="margin-left: auto; color: var(--accent);">
+                        Пользователь: <?= htmlspecialchars($_SESSION['user_name']) ?>
+                    </span>
+                    <a href="/authorization/logout">Выйти</a>
+                <?php else: ?>
+                    <a href="/registration">Регистрация</a>
+                    <a href="/authorization">Войти</a>
+                <?php endif; ?>
             </nav>
         <!-- Выпадающее меню "Мои интересы" будет добавлено в само представление interests.php, т.к. оно специфично для этой страницы -->
         </div>
     </header>
 
     <div class="wrapper">
-        <?php include $content_view; ?>
+        <?php include $content_file; ?>
     </div>
 
     <footer>
@@ -50,6 +66,6 @@
     <!-- Общие скрипты -->
     <script src="/public/assets/js/datetime.js" defer></script>
     <script src="/public/assets/js/history.js" defer></script>
-    <script src="/public/assets/js/photoalbum.js" defer></script
+    <script src="/public/assets/js/photoalbum.js" defer></script>
 </body>
 </html>

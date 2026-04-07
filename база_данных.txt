@@ -63,4 +63,31 @@ DESCRIBE guestbook;
 DESCRIBE test_results;
 DESCRIBE blog_posts;
 
+
+
+
+-- Таблица для сбора статистики посещений
+CREATE TABLE IF NOT EXISTS statistics (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    visit_datetime DATETIME NOT NULL,
+    page_url VARCHAR(255) NOT NULL,
+    ip_address VARCHAR(45) NOT NULL,
+    host_name VARCHAR(255),
+    browser_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_datetime (visit_datetime DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Таблица для пользователей (регистрация)
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    login VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+
 EXIT;

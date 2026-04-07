@@ -30,7 +30,7 @@
         <li>Автор и дата могут быть пустыми</li>
     </ul>
     
-    <form method="post" action="/blog/processUpload" enctype="multipart/form-data" class="contact-form">
+    <form method="post" action="/admin/blog/processUpload" enctype="multipart/form-data" class="contact-form">
         <div class="row">
             <label for="csv_file">CSV файл</label>
             <input type="file" id="csv_file" name="csv_file" accept=".csv" required>
@@ -38,7 +38,7 @@
         
         <div class="row buttons">
             <button type="submit">Загрузить</button>
-            <a href="/blog" class="button-link">Назад к блогу</a>
+            <a href="/admin/blog/editor" class="button-link">Назад к блогу</a>
         </div>
     </form>
 </div>

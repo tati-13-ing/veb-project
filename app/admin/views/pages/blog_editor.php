@@ -3,21 +3,11 @@
         <h2> Редактор блога</h2>
         <div class="editor-links">
             <a href="/blog" class="btn-view">Просмотр блога</a>
-            <a href="/blog/editor" class="btn-refresh">Обновить</a>
+            <a href="/admin/blog/editor" class="btn-refresh">Обновить</a>
         </div>
     </div>
     
-    <?php if (isset($_GET['success'])): ?>
-        <div class="form-success"> Запись успешно добавлена!</div>
-    <?php endif; ?>
     
-    <?php if (isset($_GET['updated'])): ?>
-        <div class="form-success">Запись успешно обновлена!</div>
-    <?php endif; ?>
-    
-    <?php if (isset($_GET['deleted'])): ?>
-        <div class="form-success">Запись успешно удалена!</div>
-    <?php endif; ?>
     
     <?php if (!empty($errors)): ?>
         <div class="form-errors">
@@ -32,7 +22,7 @@
     <!-- Форма добавления новой записи -->
     <div class="add-form">
         <h3>Добавить новую запись</h3>
-        <form method="post" action="/blog/save" enctype="multipart/form-data" class="contact-form">
+        <form method="post" action="/admin/blog/save" enctype="multipart/form-data" class="contact-form">
             <div class="row">
                 <label for="title"> Тема сообщения *</label>
                 <input type="text" id="title" name="title" 
@@ -83,8 +73,8 @@
                                 <span class="post-id">ID: <?= $post->id ?></span>
                             </div>
                             <div class="admin-post-actions">
-                                <a href="/blog/edit?id=<?= $post->id ?>" class="btn-edit"> Редактировать</a>
-                                <a href="/blog/delete?id=<?= $post->id ?>" 
+                                <a href="/admin/blog/edit?id=<?= $post->id ?>" class="btn-edit"> Редактировать</a>
+                                <a href="/admin/blog/delete?id=<?= $post->id ?>" 
                                    class="btn-delete" 
                                    onclick="return confirm('Удалить запись «<?= htmlspecialchars($post->title) ?>»?')">
                                     Удалить

@@ -1,54 +1,59 @@
 <?php
-class Router {
-    public static function route() {
+class Router
+{
+    public static function route()
+    {
         $request_uri = $_SERVER['REQUEST_URI'];
         $request_uri = strtok($request_uri, '?');
         $url = trim($request_uri, '/');
-        $segments = explode('/', $url);
+        $segments = $url === '' ? [] : explode('/', $url);
 
-        // Определяем имя контроллера
+        $admin_area = false;
+
+        if (!empty($segments[0]) && $segments[0] === 'admin') {
+            $admin_area = true;
+            array_shift($segments);
+        }
+
         if (empty($segments[0])) {
-            $controller_name = 'index';
+            $controller_name = $admin_area ? 'blog' : 'index';
+            $method_name = $admin_area ? 'editor' : 'index';
         } else {
             $controller_name = $segments[0];
+            $method_name = $segments[1] ?? 'index';
         }
-        
-        // Определяем метод (action)
-        if (isset($segments[1]) && !empty($segments[1])) {
-            $method_name = $segments[1];
-        } else {
-            $method_name = 'index';
-        }
-        
-        // Путь к файлу контроллера
-        $controller_file = 'app/controllers/' . $controller_name . '_controller.php';
-        $controller_class = ucfirst($controller_name) . 'Controller';
 
-        // Проверяем существование файла контроллера
+       if ($admin_area) {
+            $controller_file = 'app/admin/controllers/admin_' . $controller_name . '_controller.php';
+            $controller_class = 'Admin' . ucfirst($controller_name) . 'Controller';
+        } else {
+            $controller_file = 'app/controllers/' . $controller_name . '_controller.php';
+            $controller_class = ucfirst($controller_name) . 'Controller';
+        }
         if (!file_exists($controller_file)) {
             http_response_code(404);
-            die("404 – Файл контроллера $controller_file не найден");
+            die("404 – Контроллер не найден: " . $controller_file);
         }
-        
-        // Подключаем файл контроллера
+
         require_once $controller_file;
-        
-        // Проверяем существование класса
+
         if (!class_exists($controller_class)) {
             http_response_code(404);
-            die("404 – Класс контроллера $controller_class не найден");
+            die("404 – Класс контроллера не найден: " . $controller_class);
         }
-        
-        // Создаем экземпляр контроллера
+
         $controller = new $controller_class();
-        
-        // Проверяем существование метода
+
         if (!method_exists($controller, $method_name)) {
             http_response_code(404);
-            die("404 – Метод $method_name не найден в контроллере $controller_class");
+            die("404 – Метод не найден: " . $method_name);
         }
-        
-        // Вызываем метод контроллера
+
+        if ($admin_area) {
+            // ВАЖНО: вызываем setter, а не лезем в private-свойство
+            $controller->view->setAdminPrefix('admin/');
+        }
+
         $controller->{$method_name}();
     }
 }
