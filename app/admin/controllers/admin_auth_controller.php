@@ -18,8 +18,6 @@ class AdminAuthController extends Controller
         $login = trim($_POST['login'] ?? '');
         $password = trim($_POST['password'] ?? '');
         
-        // Для отладки: раскомментировать, чтобы увидеть хеш пароля
-        // echo md5($password); exit;
         
         if ($login === 'admin@gmail.com' && md5($password) === 'd8578edf8458ce06fbc5bb76a58c5ca4') {
             $_SESSION['isAdmin'] = true;
@@ -27,7 +25,7 @@ class AdminAuthController extends Controller
             exit;
         } else {
             $_SESSION['admin_login_error'] = 'Неверный логин или пароль';
-            header('Location: /admin/auth');  // ← исправлено: было /admin/login
+            header('Location: /admin/auth');  
             exit;
         }
     }
