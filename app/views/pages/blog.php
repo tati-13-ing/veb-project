@@ -15,6 +15,7 @@
     <?php else: ?>
         <div class="blog-posts">
             <?php foreach ($posts as $post): ?>
+                <?php $postComments = $commentsByPost[$post->id] ?? []; ?>
                 <article class="blog-post">
                     <div class="blog-post-header">
                         <h3><?= htmlspecialchars($post->title) ?></h3>
@@ -34,6 +35,47 @@
                     
                     <div class="blog-post-content">
                         <?= nl2br(htmlspecialchars($post->message)) ?>
+                    </div>
+                    <div class="blog-comments-block">
+                        <div class="blog-comments-top">
+                            <div class="blog-comments-title-wrap">
+                                <h4>Комментарии</h4>
+
+                                <?php if (!isset($_SESSION['user_id'])): ?>
+                                    <p class="comments-hint">Чтобы оставить комментарий, войдите в аккаунт.</p>
+                                <?php endif; ?>
+                            </div>
+
+                            <?php if (isset($_SESSION['user_id'])): ?>
+                                <button
+                                    type="button"
+                                    class="add-comment-btn"
+                                    data-post-id="<?= (int)$post->id ?>"
+                                    data-post-title="<?= htmlspecialchars($post->title, ENT_QUOTES, 'UTF-8') ?>">
+                                    Добавить комментарий
+                                </button>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="blog-comment-status" id="blog-comment-status-<?= (int)$post->id ?>"></div>
+
+                        <div class="comments-list" id="comments-list-<?= (int)$post->id ?>">
+                            <?php if (empty($postComments)): ?>
+                                <div class="no-comments" id="no-comments-<?= (int)$post->id ?>">
+                                    Комментариев пока нет.
+                                </div>
+                            <?php else: ?>
+                                <?php foreach ($postComments as $comment): ?>
+                                    <div class="comment-item" id="comment-<?= (int)$comment->id ?>">
+                                        <div class="comment-item-meta">
+                                            <strong><?= htmlspecialchars($comment->author_name) ?></strong>
+                                            <span><?= htmlspecialchars($comment->getFormattedDate()) ?></span>
+                                        </div>
+                                        <div class="comment-item-text"><?= nl2br(htmlspecialchars($comment->message)) ?></div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </article>
             <?php endforeach; ?>
@@ -80,96 +122,25 @@
         
         <p class="muted">Всего записей: <?= $totalPosts ?></p>
     <?php endif; ?>
+    <div id="comment-modal-overlay" class="ajax-modal-overlay" hidden>
+        <div class="ajax-modal-window">
+            <div class="ajax-modal-header">
+                <h3 id="comment-modal-title">Новый комментарий</h3>
+            </div>
+
+            <div class="ajax-modal-body">
+                <p id="comment-modal-subtitle" class="muted"></p>
+                <textarea id="comment-message-input" rows="7" placeholder="Введите комментарий..."></textarea>
+                <div id="comment-modal-error" class="form-errors" style="display:none;"></div>
+            </div>
+
+            <div class="ajax-modal-actions">
+                <button type="button" id="comment-modal-send">Отправить</button>
+                <button type="button" id="comment-modal-cancel" class="btn-secondary">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/public/assets/js/blog_comments.js" defer></script>
 </div>
 
-<style>
-.blog-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-.btn-editor {
-    padding: 8px 16px;
-    background: var(--accent);
-    color: var(--accent-contrast);
-    text-decoration: none;
-    border-radius: 8px;
-}
-.btn-editor:hover {
-    filter: brightness(1.1);
-}
-.blog-info {
-    background: var(--bg);
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-}
-.blog-post {
-    border: 1px solid var(--gray-700);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    background: var(--bg);
-    transition: transform 0.2s ease;
-}
-.blog-post:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--shadow-blue);
-}
-.blog-post-header {
-    border-bottom: 1px solid var(--gray-700);
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-}
-.blog-post-header h3 {
-    margin: 0 0 8px 0;
-    color: var(--accent);
-}
-.blog-post-meta {
-    display: flex;
-    gap: 15px;
-    font-size: 12px;
-    color: var(--muted);
-}
-.blog-post-image {
-    margin: 15px 0;
-    text-align: center;
-}
-.blog-post-image img {
-    max-width: 100%;
-    max-height: 300px;
-    border-radius: 8px;
-    object-fit: cover;
-}
-.blog-post-content {
-    line-height: 1.6;
-    margin-top: 15px;
-}
-.pagination {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    margin-top: 20px;
-    flex-wrap: wrap;
-}
-.pagination-link,
-.pagination-current {
-    padding: 6px 12px;
-    border-radius: 6px;
-    text-decoration: none;
-    background: var(--bg);
-    color: var(--text);
-}
-.pagination-current {
-    background: var(--accent);
-    color: var(--accent-contrast);
-}
-.pagination-link:hover {
-    background: var(--gray-700);
-}
-.pagination-dots {
-    padding: 6px 12px;
-    color: var(--muted);
-}
-</style>

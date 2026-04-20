@@ -12,7 +12,32 @@ class RegistrationController extends Controller
         ]);
         unset($_SESSION['reg_errors'], $_SESSION['reg_old']);
     }
-    
+    public function checklogin()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        $login = trim($_POST['login'] ?? '');
+
+        $result = [
+            'available' => false,
+            'message' => 'Введите логин для проверки.'
+        ];
+
+        if ($login !== '') {
+            if (mb_strlen($login) < 3) {
+                $result['message'] = 'Логин должен содержать минимум 3 символа.';
+            } else {
+                $exists = UserModel::loginExists($login);
+                $result['available'] = !$exists;
+                $result['message'] = $exists
+                    ? 'Этот логин уже занят.'
+                    : 'Логин свободен.';
+            }
+        }
+
+        echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
     public function register()
     {
         $fullName = trim($_POST['full_name'] ?? '');

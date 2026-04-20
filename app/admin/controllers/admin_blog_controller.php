@@ -207,4 +207,47 @@ class AdminBlogController extends AdminController
         header('Location: /admin/blog/upload');
         exit;
     }
+    public function ajaxupdate()
+{
+    header('Content-Type: text/html; charset=utf-8');
+
+    $id = (int)($_POST['id'] ?? 0);
+    $post = BlogPostModel::find($id);
+
+    if (!$post) {
+        http_response_code(404);
+        echo '<div class="form-errors">Запись не найдена.</div>';
+        exit;
+    }
+
+    $title = trim($_POST['title'] ?? '');
+    $message = trim($_POST['message'] ?? '');
+
+    $errors = [];
+
+    if ($title === '') {
+        $errors[] = 'Тема сообщения обязательна.';
+    }
+
+    if ($message === '') {
+        $errors[] = 'Текст сообщения обязателен.';
+    }
+
+    if (!empty($errors)) {
+        http_response_code(422);
+        echo '<div class="form-errors"><ul>';
+        foreach ($errors as $error) {
+            echo '<li>' . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') . '</li>';
+        }
+        echo '</ul></div>';
+        exit;
+    }
+
+    $post->title = $title;
+    $post->message = $message;
+    $post->save();
+
+    include 'app/views/pages/_blog_post_item.php';
+    exit;
+}
 }

@@ -64,41 +64,12 @@
         <?php if (empty($posts)): ?>
             <p class="muted">Пока нет записей. Создайте первую запись!</p>
         <?php else: ?>
-            <div class="admin-posts">
+            <div class="admin-posts" id="admin-posts-list">
                 <?php foreach ($posts as $post): ?>
-                    <div class="admin-post-item">
-                        <div class="admin-post-header">
-                            <div class="admin-post-title">
-                                <strong><?= htmlspecialchars($post->title) ?></strong>
-                                <span class="post-id">ID: <?= $post->id ?></span>
-                            </div>
-                            <div class="admin-post-actions">
-                                <a href="/admin/blog/edit?id=<?= $post->id ?>" class="btn-edit"> Редактировать</a>
-                                <a href="/admin/blog/delete?id=<?= $post->id ?>" 
-                                   class="btn-delete" 
-                                   onclick="return confirm('Удалить запись «<?= htmlspecialchars($post->title) ?>»?')">
-                                    Удалить
-                                </a>
-                            </div>
-                        </div>
-                        <div class="admin-post-meta">
-                            <span> <?= htmlspecialchars($post->getFormattedDate()) ?></span>
-                            <span> <?= htmlspecialchars($post->author) ?></span>
-                        </div>
-                        <div class="admin-post-preview">
-                            <?php if (!empty($post->image_path)): ?>
-                                <img src="/public/<?= htmlspecialchars($post->image_path) ?>" 
-                                     alt="<?= htmlspecialchars($post->title) ?>"
-                                     class="admin-post-image">
-                            <?php endif; ?>
-                            <div class="admin-post-excerpt">
-                                <?= nl2br(htmlspecialchars($post->getExcerpt(100))) ?>
-                            </div>
-                        </div>
-                    </div>
+                    <?php include 'app/views/pages/_blog_post_item.php'; ?>
                 <?php endforeach; ?>
             </div>
-            
+                        
             <!-- Пагинация для редактора -->
             <?php if ($totalPages > 1): ?>
                 <div class="pagination">
@@ -123,6 +94,37 @@
             <p class="muted">Всего записей: <?= $totalPosts ?></p>
         <?php endif; ?>
     </div>
+    <div id="admin-edit-overlay" class="ajax-modal-overlay" hidden>
+    <div class="ajax-modal-window">
+        <div class="ajax-modal-header">
+            <h3 id="admin-edit-title">Редактирование записи блога</h3>
+            <button type="button" class="ajax-modal-close" id="admin-edit-close">×</button>
+        </div>
+
+        <div class="ajax-modal-body">
+            <input type="hidden" id="admin-edit-id">
+
+            <div class="row single-column">
+                <label for="admin-edit-post-title">Тема сообщения *</label>
+                <input type="text" id="admin-edit-post-title">
+            </div>
+
+            <div class="row single-column">
+                <label for="admin-edit-post-message">Текст сообщения *</label>
+                <textarea id="admin-edit-post-message" rows="10"></textarea>
+            </div>
+
+            <div id="admin-edit-errors"></div>
+        </div>
+
+        <div class="ajax-modal-actions">
+            <button type="button" id="admin-edit-save">Сохранить изменения</button>
+            <button type="button" class="btn-secondary" id="admin-edit-cancel">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<script src="/public/assets/js/admin_blog_ajax.js" defer></script>
 </div>
 
 <style>

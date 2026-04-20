@@ -4,7 +4,7 @@ require_once 'app/core/BaseActiveRecord.php';
 class UserModel extends BaseActiveRecord
 {
     protected static $tablename = 'users';
-    
+    protected static $dbfields = [];
     public $id;
     public $full_name;
     public $email;

@@ -1,5 +1,6 @@
 <?php
-
+require_once 'app/models/BlogPostModel.php';
+require_once 'app/models/CommentModel.php';
 class BlogController extends Controller
 {
     // Страница "Мой блог" - для пользователей (только просмотр)
@@ -14,13 +15,20 @@ class BlogController extends Controller
         $posts = BlogPostModel::findPaginated($offset, $perPage, 'id', 'DESC');
         $total = BlogPostModel::count();
         $totalPages = ceil($total / $perPage);
-        
+        $postIds = array_map(function ($post) {
+            return (int)$post->id;
+        }, $posts);
+
+        $commentsByPost = CommentModel::findForPosts($postIds);
+
         $this->view->render('pages/blog.php', 'Мой блог', [
             'posts' => $posts,
+            'commentsByPost' => $commentsByPost,
             'currentPage' => $page,
             'totalPages' => $totalPages,
             'totalPosts' => $total,
             'isAdmin' => false
+            
         ]);
     }
 

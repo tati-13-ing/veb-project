@@ -5,7 +5,7 @@ require_once 'app/core/BaseActiveRecord.php';
 class BlogPostModel extends BaseActiveRecord
 {
     protected static $tablename = 'blog_posts';
-    
+    protected static $dbfields = [];
     public $id;
     public $title;
     public $message;
