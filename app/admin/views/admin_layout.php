@@ -11,6 +11,7 @@
             <h1>Панель администратора</h1>
             <nav class="nav">
                 <a href="/admin/blog/editor">Редактор блога</a>
+                <a href="/admin/blog/upload">Загрузка сообщений блога</a>
                 <a href="/admin/guestbook/upload">Загрузка сообщений гостевой книги</a>
                 <a href="/admin/statistics">Статистика посещений</a>
                 <a href="/admin/auth/logout">Выход из админки</a>

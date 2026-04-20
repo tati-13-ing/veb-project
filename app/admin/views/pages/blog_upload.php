@@ -22,14 +22,14 @@
 "Моя первая запись","Текст сообщения","Иванов Иван","2026-12-15 14:30:00"
 "Вторая запись","Еще один текст","Петрова Анна","2026-12-16 10:15:00"</pre>
     
-    <p><strong>Примечания:</strong></p>
+    <p><strong>Требования к CSV:</strong></p>
     <ul>
-        <li>Поля: заголовок, текст, автор, дата создания (опционально)</li>
-        <li>Разделитель: запятая (,) или точка с запятой (;)</li>
-        <li>Кодировка: UTF-8</li>
-        <li>Автор и дата могут быть пустыми</li>
+        <li>Первая строка должна быть: <code>title,message,author,created_at</code></li>
+        <li>Все 4 поля в каждой строке обязательны</li>
+        <li>Дата должна быть в формате <code>YYYY-MM-DD HH:MM:SS</code> или совместимом с <code>strtotime()</code></li>
+        <li>Кодировка файла: UTF-8</li>
     </ul>
-    
+            
     <form method="post" action="/admin/blog/processUpload" enctype="multipart/form-data" class="contact-form">
         <div class="row">
             <label for="csv_file">CSV файл</label>

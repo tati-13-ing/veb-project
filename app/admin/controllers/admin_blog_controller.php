@@ -1,7 +1,7 @@
 <?php
 require_once 'app/admin/controllers/admin_controller.php';
 require_once 'app/models/BlogPostModel.php';
-
+require_once 'app/models/validators/FormValidation.php';
 class AdminBlogController extends AdminController
 {
     private $itemsPerPage = 10;
@@ -155,58 +155,129 @@ class AdminBlogController extends AdminController
         unset($_SESSION['csv_errors'], $_SESSION['csv_success']);
     }
     
-    public function processUpload()
+     public function processUpload()
     {
-        if (!isset($_FILES['csv_file']) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK) {
-            $_SESSION['csv_errors'] = ['Ошибка загрузки файла'];
-            header('Location: /admin/blog/upload');
-            exit;
-        }
-        
-        $file = $_FILES['csv_file']['tmp_name'];
-        $handle = fopen($file, 'r');
-        if (!$handle) {
-            $_SESSION['csv_errors'] = ['Не удалось открыть файл'];
-            header('Location: /admin/blog/upload');
-            exit;
-        }
-        
-        $headers = fgetcsv($handle, 0, ',');
-        if (!$headers || count($headers) < 2) {
-            fclose($handle);
-            $_SESSION['csv_errors'] = ['Неверный формат CSV'];
-            header('Location: /admin/blog/upload');
-            exit;
-        }
-        
-        $count = 0;
         $errors = [];
-        while (($row = fgetcsv($handle, 0, ',')) !== false) {
-            $data = array_combine($headers, $row);
-            $title = trim($data['title'] ?? '');
-            $message = trim($data['message'] ?? '');
-            if (empty($title) || empty($message)) {
-                $errors[] = 'Пропущена строка: заголовок или сообщение пусты';
+
+        if (!isset($_FILES['csv_file']) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK) {
+            $_SESSION['csv_errors'] = ['Не удалось загрузить CSV-файл.'];
+            header('Location: /admin/blog/upload');
+            exit;
+        }
+
+        $ext = strtolower(pathinfo($_FILES['csv_file']['name'], PATHINFO_EXTENSION));
+        if ($ext !== 'csv') {
+            $_SESSION['csv_errors'] = ['Разрешен только файл формата CSV.'];
+            header('Location: /admin/blog/upload');
+            exit;
+        }
+
+        $tmpFile = $_FILES['csv_file']['tmp_name'];
+        $handle = fopen($tmpFile, 'r');
+
+        if (!$handle) {
+            $_SESSION['csv_errors'] = ['Не удалось открыть загруженный файл.'];
+            header('Location: /admin/blog/upload');
+            exit;
+        }
+
+        // Автоопределение разделителя
+        $firstLine = fgets($handle);
+        rewind($handle);
+        $delimiter = (substr_count($firstLine, ';') > substr_count($firstLine, ',')) ? ';' : ',';
+
+        $headers = fgetcsv($handle, 0, $delimiter);
+        $headers = array_map(function ($item) {
+            return trim(mb_strtolower($item));
+        }, $headers ?: []);
+
+        $expectedHeaders = ['title', 'message', 'author', 'created_at'];
+
+        if ($headers !== $expectedHeaders) {
+            fclose($handle);
+            $_SESSION['csv_errors'] = [
+                'Неверный заголовок CSV. Ожидается: title,message,author,created_at'
+            ];
+            header('Location: /admin/blog/upload');
+            exit;
+        }
+
+        // Валидация через FormValidation
+        $validator = new FormValidation();
+        $validator->setRule('title', 'isNotEmpty');
+        $validator->setRule('message', 'isNotEmpty');
+        $validator->setRule('author', 'isNotEmpty');
+        $validator->setRule('created_at', 'isNotEmpty');
+
+        // Prepared statement по заданию
+        $pdo = BlogPostModel::getConnection();
+        $stmt = $pdo->prepare("
+            INSERT INTO blog_posts (title, message, author, created_at)
+            VALUES (:title, :message, :author, :created_at)
+        ");
+
+        $imported = 0;
+        $rowNumber = 1;
+
+        while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
+            $rowNumber++;
+
+            // пропускаем пустые строки
+            if ($row === [null] || empty(array_filter($row, fn($v) => trim((string)$v) !== ''))) {
                 continue;
             }
-            
-            $post = new BlogPostModel();
-            $post->title = $title;
-            $post->message = $message;
-            $post->author = trim($data['author'] ?? 'Администратор');
-            if (!empty($data['created_at'])) {
-                $post->created_at = date('Y-m-d H:i:s', strtotime($data['created_at']));
+
+            if (count($row) !== 4) {
+                $errors[] = "Строка {$rowNumber}: должно быть 4 поля.";
+                continue;
             }
-            $post->save();
-            $count++;
+
+            $data = array_combine($expectedHeaders, $row);
+            $data = array_map(function ($item) {
+                return trim($item);
+            }, $data);
+
+            $validator->validate($data);
+            $rowErrors = $validator->getErrors();
+
+            if (!empty($rowErrors)) {
+                foreach ($rowErrors as $error) {
+                    $errors[] = "Строка {$rowNumber}: {$error}";
+                }
+                continue;
+            }
+
+            $timestamp = strtotime($data['created_at']);
+            if ($timestamp === false) {
+                $errors[] = "Строка {$rowNumber}: неверный формат даты created_at.";
+                continue;
+            }
+
+            try {
+                $stmt->execute([
+                    ':title'      => $data['title'],
+                    ':message'    => $data['message'],
+                    ':author'     => $data['author'],
+                    ':created_at' => date('Y-m-d H:i:s', $timestamp),
+                ]);
+                $imported++;
+            } catch (PDOException $e) {
+                $errors[] = "Строка {$rowNumber}: ошибка записи в БД.";
+            }
         }
+
         fclose($handle);
-        
-        $_SESSION['csv_success'] = $count;
-        if (!empty($errors)) $_SESSION['csv_errors'] = $errors;
+
+        $_SESSION['csv_success'] = $imported;
+
+        if (!empty($errors)) {
+            $_SESSION['csv_errors'] = $errors;
+        }
+
         header('Location: /admin/blog/upload');
         exit;
     }
+    
     public function ajaxupdate()
 {
     header('Content-Type: text/html; charset=utf-8');

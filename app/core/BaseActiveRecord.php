@@ -20,7 +20,11 @@ class BaseActiveRecord
         static::getFields();
     }
     
-
+    public static function getConnection()
+    {
+        static::setupConnection();
+        return static::$pdo;
+    }
     //  Устанавливает подключение к базе данных (если еще не установлено)
 
     protected static function setupConnection()
